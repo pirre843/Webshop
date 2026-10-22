@@ -1,10 +1,13 @@
 package se.iths.pierre.webshop;
 
+import javax.swing.JOptionPane;
+
 import se.iths.pierre.webshop.model.Discount;
 import se.iths.pierre.webshop.model.HalfPriceDiscount;
 import se.iths.pierre.webshop.model.Product;
 import se.iths.pierre.webshop.model.TenPercentDiscount;
 
+import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,23 +85,31 @@ public class WebshopManager {
 
         while (running) {
 
-            IO.println("1-------------Lägg till Produkter------------------------");
-            IO.println("2-------------Lista produkter----------------------------");
-            IO.println("3-------------Visa information om produkten--------------");
+            IO.println("1-------------Lägg till Produkter varukorgen-------------");
+            IO.println("2-------------Visa produkterna i varukorgen--------------");
+            IO.println("3-------------Visa information om produkterna------------");
             IO.println("4-------------Avsluta Webshoppen.........................");
 
             // int choice = Integer.parseInt(IO.readln("choice: "));
-            String menuChoice = IO.readln("Välj ett av alternativen: ");
 
+
+            OutInPutHandler handler = new ConsoleHandler();
+            String menuChoice = handler.menu(); //IO.readln("Välj ett av alternativen: ");
+
+            if (menuChoice == null) {
+                return;
+            }
             switch (menuChoice) {
                 case "1":
-                    IO.println("Du valde att Lägga till produkter");
-
-
+                    //    IO.println("Du valde att Lägga till produkter");
                     while (true) {
+                        //OutInPutHandler handler = new ConsoleHandler();
+                        handler.info("Ange artikelnummer: ");
+                        String articelNumber = handler.prompt();
+                        // String svar = handler.prompt();
 
 
-                        String articelNumber = IO.readln("Ange artikel nummer för att lägga varan i kundvagnen. ");
+                        // String articelNumber = IO.readln("Ange artikel nummer för att lägga varan i kundvagnen. ");
                         boolean found = false;
 
                         for (Product product : products) {
@@ -146,48 +157,51 @@ public class WebshopManager {
                     break;
 
                 case "2":
-                    IO.println("Du valde att lista produkter");
-                    String Choice = IO.readln("Har du en rabattkupong på 50 procent? Tryck 1 för att använda din rabatt. Annars får du 10% i Webshoppen");
-                    boolean is1 = Choice.equals("1");
+                    //IO.println("Du valde att lista produkter i varukorgen");
+                    String choice = JOptionPane.showInputDialog(null, "Har du en rabattkupong på 50 procent? Tryck 1 för att använda din rabatt. Annars får du 10% i Webshoppen");
 
+                    if (choice == null) {
+                        break;
+                    }
+                    boolean is1 = choice.equals("1");
                     double summa = 0;
+                    String productlist = "";
 
                     for (Product product : cart) {
+                        productlist += product.getTitle()
+                                + " _ " + product.getPrice()
+                                + "kr\n";
                         summa += product.getPrice();
-
                     }
                     double slutpris;
-
                     if (is1) {
                         slutpris = summa * 0.50;
                     } else {
                         slutpris = summa * 0.90;
                     }
-
-                    IO.println("Summa före rabatt: " + summa + "kr");
-                    IO.println("Att betala efter rabatten: Slutpris: " + slutpris + "kr");
-
-                    // for (Product product : products) {
-                    // IO.println(product.getTitle());
-                    //IO.println(product.getPrice() + "kr");
-                    //IO.println(product.getArticelNumber());
+                    productlist += "\nTotalpris efter rabatt: " + slutpris + "kr";
 
 
+                    handler.info(productlist);
                     break;
 
+
+                // for (Product product : products) {
+                // IO.println(product.getTitle());
+                //IO.println(product.getPrice() + "kr");
+                //IO.println(product.getArticelNumber());
+                //Skriv om den här så den visa information om produkterna case 2 eller 3 Kolla
+                //upp dessa!!!!!!!!!
+
                 case "3":
-                    IO.println(" information om Varukorgen");
-                    if (cart.isEmpty()) {
-                        IO.println("Varukorgen är tom");
-                    } else {
-                        for (Product product : cart) {
-                            IO.println("Titel: " + product.getTitle());
-                            IO.println("Artikelnummer : " + product.getArticelNumber());
-                            IO.println("Beskrivning: " + product.getDescription());
-                            IO.println("Pris: " + product.getPrice() + "kr");
-                            String var = IO.readln("Skriv in artikelnummer");
-                        }
+                    String productinfo = "";
+
+                    for (Product product : products) {
+
+                        productinfo += "Titel: " + product.getTitle() + "\nArtikelnummer: " + product.getArticelNumber() + "\nBeskrivning: " + product.getDescription() + "\nPris: " + product.getPrice() + "kr\n\n";
+
                     }
+                    handler.info(productinfo);
 
                     break;
 
@@ -277,9 +291,6 @@ public class WebshopManager {
     }
 
 }
-
-
-
 
 
 

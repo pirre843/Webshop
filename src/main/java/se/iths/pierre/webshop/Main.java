@@ -8,9 +8,9 @@ import java.nio.file.Path;
 public class Main {
     static void main() {
 
-        WebshopManager webshopManager = new WebshopManager("Shop");
+        WebshopManager webshopManager = new WebshopManager("shop");
         webshopManager.startWebShop();
-
 
     }
 }
+
