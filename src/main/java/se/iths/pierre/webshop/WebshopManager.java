@@ -23,9 +23,13 @@ public class WebshopManager {
 
 
     private String name;
+    private ProductStorage productStorage;
 
-    public WebshopManager(String name) {
+//dependency injection (tar emot och sparar från main)
+
+    public WebshopManager(String name, ProductStorage productStorage) {
         this.name = name;
+        this.productStorage = productStorage;
 
     }
 
@@ -37,6 +41,11 @@ public class WebshopManager {
 
     static void main() {
 
+        try {
+            Files.writeString(Path.of("cart.txt"), "");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Path cartPath = Path.of("cart.txt");
 
@@ -62,9 +71,12 @@ public class WebshopManager {
     public void startWebShop() {
         IO.println("Starta WebShop");
 
-        Path path = Path.of("products.txt");
-        ProductStorage storage = new ProductFileStorage(path);
-        List<Product> products = storage.getProducts();
+        // Path path = Path.of("products.txt"); ligger main nu
+        //ProductStorage storage = new ProductFileStorage(path); I Main
+
+
+        List<Product> products = productStorage.getProducts();// ändrat till productStorage lagt till i Main. Dependency injection.
+        IO.println("Antal produkter från filen: " + products.size());
         showMenu(products);
     }
 
@@ -76,23 +88,26 @@ public class WebshopManager {
 
 
     public void showMenu(List<Product> products) {
+
+
         List<Product> cart = new ArrayList<>();
         boolean running = true;
         boolean rabatkupong = true;
+        ProductStorage cartStorage = new ProductFileStorage(Path.of("cart.txt"));
 
 
         IO.println("-----------Välkommen till Webshopen!---------------------");
 
         while (running) {
 
-            IO.println("1-------------Lägg till Produkter varukorgen-------------");
-            IO.println("2-------------Visa produkterna i varukorgen--------------");
-            IO.println("3-------------Visa information om produkterna------------");
-            IO.println("4-------------Avsluta Webshoppen.........................");
+//            IO.println("1-------------Lägg till Produkter varukorgen-------------");
+//            IO.println("2-------------Visa produkterna i varukorgen--------------");
+//            IO.println("3-------------Visa information om produkterna------------");
+//            IO.println("4-------------Avsluta Webshoppen.........................");
 
             // int choice = Integer.parseInt(IO.readln("choice: "));
 
-
+            // ProductStorage cartStorage = new ProductFileStorage(Path.of("cart.txt"));
             OutInPutHandler handler = new ConsoleHandler();
             String menuChoice = handler.menu(); //IO.readln("Välj ett av alternativen: ");
 
@@ -104,22 +119,43 @@ public class WebshopManager {
                     //    IO.println("Du valde att Lägga till produkter");
                     while (true) {
                         //OutInPutHandler handler = new ConsoleHandler();
-                        handler.info("Ange artikelnummer: ");
-                        String articelNumber = handler.prompt();
-                        // String svar = handler.prompt();
+
+                        //alla värden som användaren får mata in finns nu.
+
+
+                        String articelNumber = handler.prompt("Ange artikelnummer: ");
+
+
+                        String titel = handler.prompt("Ange Titel: ");
+
+
+                        String beskrivning = handler.prompt("Ange Beskrivning: ");
+
+
+                        String priceInput = handler.prompt("Ange Pris: ");
+
+                        double price = Double.parseDouble(priceInput);
+
+                        Product product = new Product(articelNumber, titel, beskrivning, price);
+                        //Spara produkterna till fil funkar nu
+
+                        //TODO: be användaren om fler värden, alla som finns i Product
+                        //TODO: därefter spara produkten till fil
 
 
                         // String articelNumber = IO.readln("Ange artikel nummer för att lägga varan i kundvagnen. ");
                         boolean found = false;
 
-                        for (Product product : products) {
-                            if (product.getArticelNumber().equals(articelNumber)) {
-                                cart.add(product);
-                                IO.println(product.getTitle() + " har lagts i varukorgen.");
+                        for (Product product1 : products) {
+                            IO.println("kontrollerar artikelnummer: " + product1.getArticelNumber());
+                            if (product1.getArticelNumber().equals(articelNumber)) {
+                                cart.add(product1);
+                                cartStorage.saveProduct(product1); //spara till fil!!!!!!
+
+                                IO.println(product1.getTitle() + " har lagts i varukorgen.");
                                 found = true;
                                 break;
                             }
-
                         } //avslutar for loopen
                            /* if (is1) {
                                 IO.println("Du har 50 procent i rabatt");
@@ -159,20 +195,35 @@ public class WebshopManager {
                 case "2":
                     //IO.println("Du valde att lista produkter i varukorgen");
                     String choice = JOptionPane.showInputDialog(null, "Har du en rabattkupong på 50 procent? Tryck 1 för att använda din rabatt. Annars får du 10% i Webshoppen");
-
                     if (choice == null) {
                         break;
                     }
-                    boolean is1 = choice.equals("1");
+                    //ProductStorage cartStorage = new ProductFileStorage(Path.of("cart.txt"));
+
+                    List<Product> products1 = cartStorage.getProducts();
+                    IO.println("Antal böcker i kundvagnen: " + products1.size());
                     double summa = 0;
                     String productlist = "";
 
-                    for (Product product : cart) {
+                    for (Product product : products1) {
                         productlist += product.getTitle()
                                 + " _ " + product.getPrice()
                                 + "kr\n";
                         summa += product.getPrice();
+
                     }
+                    boolean is1 = choice.equals("1");
+                    double summa1 = 0;
+                    String productlist1 = "";
+
+
+                    //TODO: Hämta alla produkter från fil via ProductFileStorage
+                    //fungerar
+                    Path CarPath = Path.of("cart.txt");
+
+                    //ProductFileStorage cartStorage = new ProductFileStorage(CartPath);
+
+
                     double slutpris;
                     if (is1) {
                         slutpris = summa * 0.50;
@@ -194,16 +245,49 @@ public class WebshopManager {
                 //upp dessa!!!!!!!!!
 
                 case "3":
-                    String productinfo = "";
+                    String productinfo = "";  //kolla upp dessa tre
 
+                    String articelnumber = handler.prompt("Ange artikelnummer: ");//kund matar
+                    boolean found = false;                                         //in artikelnummer
+                    // IO.println("Antal produkter i att söka i case 3: " + products.size());
                     for (Product product : products) {
+                        // IO.println("kontrollerar: [" + product.getArticelNumber() + "]");
+                        //IO.println("kunden söker efter: [" + articelnumber + "]");
+                        // IO.println("Produkten i listan: [" + product.getArticelNumber() + "]");
 
-                        productinfo += "Titel: " + product.getTitle() + "\nArtikelnummer: " + product.getArticelNumber() + "\nBeskrivning: " + product.getDescription() + "\nPris: " + product.getPrice() + "kr\n\n";
+                        //IO.println("Antal produkter att söka bland: [" + product.getArticelNumber() + "]");
+                        if (product.getArticelNumber().trim().equalsIgnoreCase(articelnumber.trim())) {
+                            found = true;
+
+                            productinfo = "Ange artikelnummer: " + product.getArticelNumber()
+                                    + "\nTitel: " + product.getTitle()
+                                    + "\nBeskrivning: " + product.getDescription()
+                                    + "\nPris: " + product.getPrice() + "kr";
+
+                            handler.info(productinfo);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        handler.info("produkten finns inte");
 
                     }
-                    handler.info(productinfo);
-
                     break;
+
+                //TODO: Be användaren om artikelnummer
+                //TODO: Kolla om produkt med detta artikelnummer finns via ProductFileStorage
+                //TODO: Visa info om denna produkt om den finns
+                //Användaren matar in artikelnummer
+                //kollar om produkten finns fungerar nu
+                //och visar info om produkten fungerar
+
+                // for (Product product : products) {
+
+                //   productinfo += "Titel: " + product.getTitle() + "\nArtikelnummer: " + product.getArticelNumber() + "\nBeskrivning: " + product.getDescription() + "\nPris: " + product.getPrice() + "kr\n\n";
+
+
+                // handler.info(productinfo);
+
 
                 case "4":
                     IO.println("Avsluta Webshoppen");

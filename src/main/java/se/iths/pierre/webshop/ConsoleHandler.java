@@ -8,7 +8,7 @@ public class ConsoleHandler implements OutInPutHandler {
 
 
     @Override
-    public String prompt() {
+    public String prompt(String message) {
 
         JFrame frame = new JFrame();
         frame.setAlwaysOnTop(true);
@@ -17,7 +17,7 @@ public class ConsoleHandler implements OutInPutHandler {
         //String articelNummer = handler.prompt();
 
         try {
-            return JOptionPane.showInputDialog(frame, "Ange artikelnummer");
+            return JOptionPane.showInputDialog(frame, message);
         } finally {
             frame.dispose();
         }

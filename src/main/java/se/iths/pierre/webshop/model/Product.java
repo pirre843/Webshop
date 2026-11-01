@@ -52,7 +52,7 @@ public class Product {
     }
 
     public String toFileLine() {
-        return articelNumber + "B45" + title + "Java ptogramering, Bok om Java programering" + description + "455.0" + price;
+        return articelNumber + "B45" + title + "Java programering, Bok om Java programering" + description + "455.0" + price;
     }
 
     public String toFileLine2() {
@@ -68,6 +68,7 @@ public class Product {
         if (parts.length != 4) {
             throw new IllegalArgumentException("felaktig produktrad:  " + line);
         }
+
 
         String[] array = line.split(",");
 

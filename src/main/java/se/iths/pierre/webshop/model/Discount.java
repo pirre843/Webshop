@@ -15,6 +15,7 @@ public abstract class Discount {
         return description;
 
     }
+    
 
     public abstract double calculatePrice(double originalPrice);
 

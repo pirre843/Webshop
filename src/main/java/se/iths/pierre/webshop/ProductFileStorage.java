@@ -7,14 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Path;
 import java.io.IOException;
+import java.nio.file.StandardOpenOption;
 
 public class ProductFileStorage implements ProductStorage {
-    Path path;
+
+    private Path path;
 
     public ProductFileStorage(Path path) {
         this.path = path;
 
     }
+
+    //ProductStorage cartStorage = new ProductFileStorage(Path.of("cart.txt"));
+
 
     @Override
     public List<Product> getProducts() {
@@ -33,9 +38,8 @@ public class ProductFileStorage implements ProductStorage {
 
 
         } catch (IOException e) {
-            IO.println("Det blev fel: " + e.getMessage());
+            throw new RuntimeException(e);
         }
-
         return products;
     }
 
@@ -47,10 +51,27 @@ public class ProductFileStorage implements ProductStorage {
 
     public void saveProduct(Product product) {
 
-        IO.println("ProductFileStorage.saveProduct " + product);
+        String line = product.getArticelNumber() + ","
+                + product.getTitle() + ","                  //hämtar
+                + product.getDescription() + "," +     //spara och skriva till fil
+                product.getPrice();
 
-        List<Product> products = new ArrayList<>();
-
-
+        try {
+            Files.writeString(path, line + System.lineSeparator(), //till fil
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);//Append lägger till fil när den skapas
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
+    //TODO: Kod för att spara produkten till fil
+//Nu är sökvägarna ändrade till för att spara till fil när produkterna läggs i varukorg.
+
+
+    // IO.println("ProductFileStorage.saveProduct " + product);
+
+    // List<Product> products = new ArrayList<>();
+
+
 }
