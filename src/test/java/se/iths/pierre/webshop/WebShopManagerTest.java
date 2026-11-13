@@ -12,8 +12,8 @@ public class WebShopManagerTest {
 
     @Test
     void testSaveProductListStorage() {
-        WebshopManager manager = new WebshopManager("Webshop");
-        ProductStorage storage = new ProductListStorageTest();
+        ProductStorage storage = new ProductListStorage();
+        WebshopManager manager = new WebshopManager("Webshop", storage);
 
 
         Product product = new Product("B45", "Java Programmering", "Bok om Javaprogrammering", 455.0);
@@ -42,18 +42,16 @@ public class WebShopManagerTest {
 
     @Test
     void testGetProductNull() {
+        ProductStorage storage = new ProductListStorage();
+        WebshopManager shop = new WebshopManager("Webtest", storage);
 
-    }
+        // shop.
 
-    {
-
-
-        ProductStorage storage = new ProductListStorageTest();
         Product foundProduct = storage.getProduct("g55");
         assertNull(foundProduct);
         System.out.print("TestGetProducktNull: " + foundProduct);
-
     }
+
 
 }
 

@@ -29,7 +29,32 @@ public class WebshopManager {
 
     public WebshopManager(String name, ProductStorage productStorage) {
         this.name = name;
-        this.productStorage = productStorage;
+        this.productStorage = productStorage; //dependency injection
+
+    }
+
+    //Sparar product och sparar en ny product
+    public void saveProductToStorage(Product product) {
+
+        productStorage.saveProduct(product);
+    }
+
+    public Product getProduct(String articelNumber) {    //throws IOException {
+
+        List<Product> products = productStorage.getProducts();
+        Path path = Path.of("products.txt");
+
+
+        for (Product product : products) {
+
+            if (product.getArticelNumber()
+                    .equalsIgnoreCase(articelNumber)) {
+
+                return product;
+            }
+
+        }
+        return null;
 
     }
 
@@ -38,6 +63,10 @@ public class WebshopManager {
 
 
     }
+
+    /*
+
+     */
 
     static void main() {
 
@@ -71,7 +100,7 @@ public class WebshopManager {
     public void startWebShop() {
         IO.println("Starta WebShop");
 
-        // Path path = Path.of("products.txt"); ligger main nu
+        // Path path = Path.of("products.txt"); //ligger main nu
         //ProductStorage storage = new ProductFileStorage(path); I Main
 
 
@@ -124,23 +153,33 @@ public class WebshopManager {
 
 
                         String articelNumber = handler.prompt("Ange artikelnummer: ");
+                        if (articelNumber == null) {
+                            IO.println("Återgår till huvudmenyn");
+                            break;
 
-
+                        }
                         String titel = handler.prompt("Ange Titel: ");
-
+                        if (titel == null) {
+                            IO.println("Återgår till huvudmenyn");
+                            break;
+                        }
 
                         String beskrivning = handler.prompt("Ange Beskrivning: ");
-
+                        if (beskrivning == null) {
+                            IO.println("Återgår till huvudmenyn");
+                            break;
+                        }
 
                         String priceInput = handler.prompt("Ange Pris: ");
+                        if (priceInput == null) {
+                            IO.println("Återgår till huvudmenyn");
+                            break;
 
+                        }
                         double price = Double.parseDouble(priceInput);
 
                         Product product = new Product(articelNumber, titel, beskrivning, price);
                         //Spara produkterna till fil funkar nu
-
-                        //TODO: be användaren om fler värden, alla som finns i Product
-                        //TODO: därefter spara produkten till fil
 
 
                         // String articelNumber = IO.readln("Ange artikel nummer för att lägga varan i kundvagnen. ");
@@ -148,11 +187,12 @@ public class WebshopManager {
 
                         for (Product product1 : products) {
                             IO.println("kontrollerar artikelnummer: " + product1.getArticelNumber());
-                            if (product1.getArticelNumber().equals(articelNumber)) {
+                            if (product1.getArticelNumber().trim().equalsIgnoreCase(articelNumber.trim())) {
                                 cart.add(product1);
                                 cartStorage.saveProduct(product1); //spara till fil!!!!!!
 
                                 IO.println(product1.getTitle() + " har lagts i varukorgen.");
+
                                 found = true;
                                 break;
                             }
@@ -217,12 +257,11 @@ public class WebshopManager {
                     String productlist1 = "";
 
 
-                    //TODO: Hämta alla produkter från fil via ProductFileStorage
                     //fungerar
                     Path CarPath = Path.of("cart.txt");
 
                     //ProductFileStorage cartStorage = new ProductFileStorage(CartPath);
-
+                    //Main
 
                     double slutpris;
                     if (is1) {
@@ -231,9 +270,19 @@ public class WebshopManager {
                         slutpris = summa * 0.90;
                     }
                     productlist += "\nTotalpris efter rabatt: " + slutpris + "kr";
-
-
                     handler.info(productlist);
+
+                    try {
+
+                        Files.writeString(Path.of("cart.txt"), "");  //tömmer kundvagnens filen
+                        // cart.clear(); //tömmer kundvagnen minnet
+
+                        IO.println("varukorgen är tom");
+
+                    } catch (IOException e) {        //kastar en IOException om det inte funger att tömma varukorgen
+                        IO.println("kunde inte tömma varukorgen");
+
+                    }
                     break;
 
 
@@ -248,6 +297,13 @@ public class WebshopManager {
                     String productinfo = "";  //kolla upp dessa tre
 
                     String articelnumber = handler.prompt("Ange artikelnummer: ");//kund matar
+
+                    if (articelnumber == null) {
+
+                        IO.println("Återgår till huvudmenyn");
+
+                        break;
+                    }
                     boolean found = false;                                         //in artikelnummer
                     // IO.println("Antal produkter i att söka i case 3: " + products.size());
                     for (Product product : products) {
@@ -260,23 +316,20 @@ public class WebshopManager {
                             found = true;
 
                             productinfo = "Ange artikelnummer: " + product.getArticelNumber()
-                                    + "\nTitel: " + product.getTitle()
-                                    + "\nBeskrivning: " + product.getDescription()
+                                    + "\nTitel: " + product.getTitle() + "\nBeskrivning: " + product.getDescription()
                                     + "\nPris: " + product.getPrice() + "kr";
 
+
                             handler.info(productinfo);
-                            break;
                         }
                     }
                     if (!found) {
                         handler.info("produkten finns inte");
-
                     }
+
                     break;
 
-                //TODO: Be användaren om artikelnummer
-                //TODO: Kolla om produkt med detta artikelnummer finns via ProductFileStorage
-                //TODO: Visa info om denna produkt om den finns
+
                 //Användaren matar in artikelnummer
                 //kollar om produkten finns fungerar nu
                 //och visar info om produkten fungerar
@@ -371,10 +424,10 @@ public class WebshopManager {
 */
 
         }
-
     }
-
 }
+
+
 
 
 

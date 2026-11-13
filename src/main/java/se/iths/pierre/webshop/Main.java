@@ -10,16 +10,10 @@ import java.nio.file.Path;
 public class Main {
     static void main() {
 
-        //Path och ProductStorage ska skapas här, fungerar
-        Path path = Path.of("products.txt");
-        ProductStorage storage = new ProductFileStorage(path);
+        //Path och ProductStorage skapas här, fungerar
 
-        //Skicka sedan in i webshopManager, fungerar
-        try {
-            Files.writeString(Path.of("cart.txt"), "");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        
+        ProductStorage storage = new ProductFileStorage(Path.of("products.txt"));
 
 
         WebshopManager webshopManager = new WebshopManager("shop", storage);
